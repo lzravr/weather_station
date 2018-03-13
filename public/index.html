@@ -1,0 +1,338 @@
+
+<!DOCTYPE html>
+<html lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Weather station</title>
+
+        <!-- Bootstrap CSS -->
+
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="./style.css" rel="stylesheet">
+    <!--<script src="https://cdn.socket.io/socket.io-1.3.6.js"></script>-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+	<!-- <script src="socket.io-1.3.6.js"></script> -->
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>	
+        <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+    
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+
+        <div class="jumbotron">
+            <div class="container">
+                <h2>weather station</h2>       
+            </div>
+        </div>
+        
+        <div class="container-fluid">
+            
+            <div class="row">
+                
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-2">
+                    <div class="thumbnail">
+                        <img data-src="#" alt="">
+                        <div class="caption">
+                            <h3>Indoors temperature</h3>
+                            <h2 id="temperature" >
+                            
+                            </h2>
+                            <p>
+                                <a href="#" onclick="readT()" class="btn btn-primary">Refresh</a>
+                                <i class="fas fa-thermometer-half" style="float:right; font-size: 36pt"></i>
+                            </p>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-2">
+                    <div class="thumbnail">
+                        <img data-src="#" alt="">
+                        <div class="caption">
+                            <h3>Indoors humidity</h3>
+                            <h2 id="humidity" >
+                                
+                            </h2>
+                            <p>
+                                <a href="#" onclick="readV()" class="btn btn-primary">Refresh</a>
+                                <i class="fas fa-tint" style="float:right; font-size: 36pt"></i>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-2">
+                    <div class="thumbnail">
+                        <img data-src="#" alt="">
+                        <div class="caption">
+                            <h3>Indoors lighting</h3>
+                            <h2>
+                                <span id="lighting1">  </span> &nbsp;&nbsp;&nbsp;&nbsp;
+                            </h2>
+                            <p>
+                                <a href="#" onclick="readL1()" class="btn btn-primary">Refresh</a>
+                                <i class="fas fa-lightbulb" style="float:right; font-size: 36pt;"></i>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-2">
+                    <div class="thumbnail">
+                        <img data-src="#" alt="">
+                        <div class="caption">
+                            <h3>Outdoors temperature</h3>
+                            <h2 id="temperatureOutdoors" >
+                            
+                            </h2>
+                            <p>
+                                <a href="#" onclick="readt()" class="btn btn-primary">Refresh</a>
+                                <i class="fas fa-thermometer-half" style="float:right; font-size: 36pt"></i>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-2">
+                    <div class="thumbnail">
+                        <img data-src="#" alt="">
+                        <div class="caption">
+                            <h3>Outdoors humidity</h3>
+                            <h2 id="humidityOutdoors" >
+                                
+                            </h2>
+                            <p>
+                                <a href="#" onclick="readv()" class="btn btn-primary">Refresh</a>
+                                <i class="fas fa-tint" style="float:right; font-size: 36pt"></i>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-2">
+                    <div class="thumbnail">
+                        <img data-src="#" alt="">
+                        <div class="caption">
+                            <h3>Outdoors lighting</h3>
+                            <h2>
+                                <span id="lighting2">  </span> 
+                            </h2>
+                            <p>
+                                <a href="#" onclick="readL2()" class="btn btn-primary">Refresh</a>
+                                <i class="fas fa-lightbulb" style="float:right; font-size: 36pt;"></i>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label for="intervalOsvezavanja" class="col-sm-5 control-label">Refresh inteval:</label>
+                        <div class="col-sm-6">
+                            <select name="" id="intervalOsvezavanja" class="form-control" required="required" onchange="setRefresh()">
+                                <optgroup label="Seconds">
+                                    <option value="1000">1 second</option>
+                                    <option value="5000">5 seconds</option>
+                                    <option value="10000">10 seconds</option>
+                                    <option value="30000">30 seconds</option>
+                                </optgroup>
+                                <optgroup label="Minutes">
+                                    <option value="60000">1 minute</option>
+                                    <option value="300000">5 minutes</option>
+                                    <option value="600000" selected>10 minutes</option>
+                                    <option value="1800000">30 minutes</option>
+                                </optgroup>
+                                <optgroup label="Hours">
+                                    <option value="3600000">1 hour</option>
+                                    <option value="7200000">2 hours</option>
+                                    <option value="21600000">6 hours</option>
+                                    <option value="43200000">12 hours</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+
+                    <div class="form-group">
+                        <label for="inputIzborSenzora" class="col-sm-5 control-label">Sensor selection:</label>
+                        <div class="col-sm-6">
+                            <select name="" id="inputIzborSenzora" class="form-control" required="required">
+                                <option value="Temp_inside" selected >Indoors temperature</option>
+                                <option value="Temp_outside">Outdoors temperature</option>
+                                <option value="Humidity_inside">Indoors humidity</option>
+                                <option value="Humidity_outside">Outdoors humidity</option>
+                                <option value="Lighting1">Indoors lighting</option>
+                                <option value="Lighting2">Outdoors lighting</option>
+                            </select>
+                        </div>
+                    </div>
+                    <br>
+                    <br>          
+                    <div class="form-group">
+                        <label for="inputVremesnkiOpseg" class="col-sm-5 control-label">Time range:</label>
+                        <div class="col-sm-6">
+                            <select name="" id="inputVremesnkiOpseg" class="form-control" required="required">
+                                <option value="day">Today</option>
+                                <option value="month">Last 30 days</option>
+                                
+                            </select>
+                        </div>
+                    </div>
+                    <br>
+                    <br>          
+                    
+                    <div class="form-group">
+                        <label  class="col-sm-5 control-label"></label>
+                        <div class="col-sm-4">
+                            
+                            <button type="button" onclick="ucitajGrafik()" class="btn btn-primary">Show graph</button>
+                            
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-sm-8">
+                    <div id="grafik">
+
+                    </div>
+                </div>
+            </div>
+        
+        </div>
+        
+<script>
+var socket = io.connect(location.host + "/arduinoUno");
+
+socket.on("arduinoResponse", function (data) 
+        { 
+             console.log(data.message);
+             var simbol = data.message[0];
+             console.log("simbol : " + simbol);
+             var value = data.message.substr(1);
+             switch(simbol)
+             {
+                 case "T" : document.getElementById("temperature").innerHTML = value + " °C"; break;
+                 case "t" : document.getElementById("temperatureOutdoors").innerHTML = value + " °C"; break;
+                 case 'V' : document.getElementById("humidity").innerHTML = value + "% RH"; break;
+                 case 'v' : document.getElementById("humidityOutdoors").innerHTML = value + "% RH"; break;
+                 case 'S' : document.getElementById("lighting1").innerHTML = value + "lux"; break;
+                 case 's' : document.getElementById("lighting2").innerHTML = value + "lux"; break;
+                 case 'A' : {
+                    var dataStr = value.split(",");
+
+                    document.getElementById("temperature").innerHTML = dataStr[0] + " °C";
+                    document.getElementById("temperatureOutdoors").innerHTML = dataStr[1] + " °C";
+                    document.getElementById("humidity").innerHTML = dataStr[2] + "% RH";
+                    document.getElementById("humidityOutdoors").innerHTML = dataStr[3] + "% RH";
+                    document.getElementById("lighting1").innerHTML = dataStr[4];
+                    document.getElementById("lighting2").innerHTML = dataStr[5];
+                    break;
+                 }
+             }
+             
+        });
+        var dataToSend = {};
+        function readT() {
+            socket.emit("temperature",dataToSend);
+        }
+        function readt() {
+            socket.emit("temperatureOutdoors",dataToSend);
+        }
+        function readV() {
+            socket.emit("humidity",dataToSend);
+        }
+        function readv() {
+            socket.emit("humidityOutdoors",dataToSend);
+        }
+         function readL1() {
+            socket.emit("lighting1",dataToSend);
+        }
+         function readL2() {
+            socket.emit("lighting2",dataToSend);
+        }
+
+        function setRefresh() {
+            socket.emit("refresh", document.getElementById("intervalOsvezavanja").value);
+        }
+        
+        readT();
+        readt();
+        readV();
+        readv();
+        readL1();
+        readL2();
+        setRefresh();
+
+        function ucitajGrafik() 
+        {
+           var senzor = $("#inputIzborSenzora").val();
+           var path = $("#inputVremesnkiOpseg").val();
+           console.log(path);
+
+            $.get( path, function(data) {
+                console.log(data);
+                var nazivYosa = "";
+                switch(senzor)
+                {
+                    case "Temp_inside" : nazivYosa = "Temerature (°C)"; break;
+                    case "Temp_outside" : nazivYosa = "Temerature (°C)"; break;
+                    case 'Humidity_inside' : nazivYosa = "Humidity (% RH)" ; break;
+                    case 'Humidity_outside' : nazivYosa = "Humidity (% RH)" ; break;
+                    case 'Lighting1' : nazivYosa = "Lighting (lux)"; break;
+                    case 'Lighting2' : nazivYosa = "Lighting (lux)"; break;
+                }
+
+
+                var n = data.length;
+                var xAxis = [];
+                var yAxis = [];
+                for(var i =0; i<n; i++)
+                {
+                    var vreme = new Date(data[i]["Time"]);
+                    xAxis.push(vreme);
+                    yAxis.push( data[i][senzor] );
+                }
+                console.log(yAxis);
+
+                var line = {
+                    x: xAxis,
+                    y: yAxis,
+                    mode: 'lines+markers',
+                    type: 'scatter'
+                };
+                
+                var data = [line];
+                                
+                var layout = {
+                      xaxis: {
+                         title : "Time"
+                     },
+                     yaxis: {
+                         title : nazivYosa
+                     },
+                     
+                    title: nazivYosa + ' / Time'
+                };
+                 
+                 Plotly.newPlot('grafik', data, layout);
+
+                
+            })
+        }
+
+</script>
+
+
+        <!-- jQuery -->
+        <script src="//code.jquery.com/jquery.js"></script>
+        <!-- Bootstrap JavaScript -->
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    </body>
+</html>

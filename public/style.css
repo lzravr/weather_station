@@ -1,0 +1,11 @@
+
+.jumbotron {  
+    background-image: url("rain.jpeg");
+    /* background-color: darkorange; */
+    color: white;
+}
+
+.jumbotron h2 {
+    font-size: 36pt;
+}
+

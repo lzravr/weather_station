@@ -1,0 +1,19 @@
+{
+  "name": "weather_station",
+  "version": "1.0.0",
+  "description": "arduino weather station",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "lanr",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3",
+    "fs": "0.0.1-security",
+    "serialport": "^6.1.1",
+    "socket.io": "^2.0.4",
+    "sqlite3": "^3.1.13"
+  }
+}
