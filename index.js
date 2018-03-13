@@ -136,6 +136,21 @@ app.get('/month', function (req, res)
     });
  });
 
+ app.get('/table', function (req, res) 
+ { 
+     var response = [];
+     var now = Date.now(); 
+ 
+     connectDb();
+ 
+     db.all("SELECT * FROM Measurements", function(err, rows) {
+         if(!err) {
+             console.log(rows);
+             res.send(rows);
+         }
+     });
+  });
+
 
 
  server.listen(3001, function () { 

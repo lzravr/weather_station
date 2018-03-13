@@ -24,7 +24,7 @@
             <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
     </head>
-    <body>
+    <body onload="getTable()">
 
         <div class="jumbotron">
             <div class="container">
@@ -202,6 +202,30 @@
                     <div id="grafik">
 
                     </div>
+                </div>        
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4">
+                    od datuma i sata do datuma i sata (4 pickera)
+                </div>
+                <div class="col-sm-8">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                <th>Time</th>
+                                <th>Indoors temperature</th>
+                                <th>Outdoors temperature</th>
+                                <th>Indoors humidity</th>
+                                <th>Outdoors humidity</th>
+                                <th>Indoors lighting</th>
+                                <th>Outdoors lighting</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                
+                            </tbody>
+                        </table>
                 </div>
             </div>
         
@@ -260,6 +284,20 @@ socket.on("arduinoResponse", function (data)
 
         function setRefresh() {
             socket.emit("refresh", document.getElementById("intervalOsvezavanja").value);
+        }
+
+        function getTable() {
+            $.get("table", function(data) {
+                var string = "";
+                console.log("papa " + data);
+
+                data.forEach(item => {
+                    var vreme = new Date(item["Time"]).toLocaleString();
+                    string += "<tr><td>" + vreme + "</td><td>" + item["Temp_inside"] + "</td><td>" + item["Temp_outside"] + "</td><td>" + item["Humidity_inside"] + "</td><td>" + item["Humidity_outside"] + "</td><td>" + item["Lighting1"] + "</td><td>" + item["Lighting1"] + "</td></tr>";
+                });
+
+                document.getElementById("table-body").innerHTML = string;
+            });
         }
         
         readT();
@@ -322,11 +360,10 @@ socket.on("arduinoResponse", function (data)
                 };
                  
                  Plotly.newPlot('grafik', data, layout);
-
-                
+               
             })
         }
-
+        
 </script>
 
 
