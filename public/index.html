@@ -24,7 +24,7 @@
             <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
     </head>
-    <body onload="getTable()">
+    <body>
 
         <div class="jumbotron">
             <div class="container">
@@ -179,7 +179,7 @@
                         <label for="inputVremesnkiOpseg" class="col-sm-5 control-label">Time range:</label>
                         <div class="col-sm-6">
                             <select name="" id="inputVremesnkiOpseg" class="form-control" required="required">
-                                <option value="day">Today</option>
+                                <option value="day">Last 24 hours</option>
                                 <option value="month">Last 30 days</option>
                                 
                             </select>
@@ -192,7 +192,8 @@
                         <label  class="col-sm-5 control-label"></label>
                         <div class="col-sm-4">
                             
-                            <button type="button" onclick="ucitajGrafik()" class="btn btn-primary">Show graph</button>
+                            <button type="button" onclick="ucitajGrafik()" class="col-sm-12 btn btn-primary">Show graph</button> <br><br>
+                            <button type="button" onclick="getTable()" class="col-sm-12 btn btn-primary">Show table</button>
                             
                         </div>
                     </div>
@@ -207,25 +208,9 @@
 
             <div class="row">
                 <div class="col-sm-4">
-                    od datuma i sata do datuma i sata (4 pickera)
                 </div>
-                <div class="col-sm-8">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                <th>Time</th>
-                                <th>Indoors temperature</th>
-                                <th>Outdoors temperature</th>
-                                <th>Indoors humidity</th>
-                                <th>Outdoors humidity</th>
-                                <th>Indoors lighting</th>
-                                <th>Outdoors lighting</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-body">
-                                
-                            </tbody>
-                        </table>
+                <div class="col-sm-8" id="table-body">
+                        
                 </div>
             </div>
         
@@ -246,8 +231,8 @@ socket.on("arduinoResponse", function (data)
                  case "t" : document.getElementById("temperatureOutdoors").innerHTML = value + " °C"; break;
                  case 'V' : document.getElementById("humidity").innerHTML = value + "% RH"; break;
                  case 'v' : document.getElementById("humidityOutdoors").innerHTML = value + "% RH"; break;
-                 case 'S' : document.getElementById("lighting1").innerHTML = value + "lux"; break;
-                 case 's' : document.getElementById("lighting2").innerHTML = value + "lux"; break;
+                 case 'S' : document.getElementById("lighting1").innerHTML = value + " lux"; break;
+                 case 's' : document.getElementById("lighting2").innerHTML = value + " lux"; break;
                  case 'A' : {
                     var dataStr = value.split(",");
 
@@ -287,15 +272,30 @@ socket.on("arduinoResponse", function (data)
         }
 
         function getTable() {
-            $.get("table", function(data) {
-                var string = "";
+            var path = $("#inputVremesnkiOpseg").val();
+            $.get(path, function(data) {
+                var string = "<table class='table table-hover' > \
+                            <thead> \
+                                <tr> \
+                                <th>Time</th> \
+                                <th>Indoors temperature</th> \
+                                <th>Outdoors temperature</th> \
+                                <th>Indoors humidity</th> \
+                                <th>Outdoors humidity</th> \
+                                <th>Indoors lighting</th> \
+                                <th>Outdoors lighting</th> \
+                                </tr> \
+                            </thead> \
+                            <tbody >";
+                            
                 console.log("papa " + data);
 
                 data.forEach(item => {
                     var vreme = new Date(item["Time"]).toLocaleString();
                     string += "<tr><td>" + vreme + "</td><td>" + item["Temp_inside"] + "</td><td>" + item["Temp_outside"] + "</td><td>" + item["Humidity_inside"] + "</td><td>" + item["Humidity_outside"] + "</td><td>" + item["Lighting1"] + "</td><td>" + item["Lighting1"] + "</td></tr>";
                 });
-
+                
+                string += "</tbody></table>";
                 document.getElementById("table-body").innerHTML = string;
             });
         }
