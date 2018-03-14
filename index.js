@@ -25,118 +25,127 @@ const Readline = SerialPort.parsers.Readline;
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
 
-var USBtoArduino = new SerialPort( "COM3",{ baudRate: 9600 },function (error) { 
+var USBtoArduino = new SerialPort("COM3", { baudRate: 9600 }, function(error) {
 
-    if(error)
-    {
+    if (error) {
         console.log("greska pri konekciji na arduino");
     }
 });
 
-const parser = USBtoArduino.pipe(new Readline({ delimiter: '\n'}));
+const parser = USBtoArduino.pipe(new Readline({ delimiter: '\n' }));
 
-USBtoArduino.on("error", function (error) { 
+USBtoArduino.on("error", function(error) {
     console.log("arduino error : " + error);
 });
 
-parser.on("data", function (data) { 
+parser.on("data", function(data) {
     console.log("data from arduino : " + data);
-    if(data[0] == "A")
-    {
+    if (data[0] == "A") {
         connectDb();
 
         var time = Date.now();
         var tmp = data.split(",");
         tmp[0] = tmp[0].substr(1);
 
-        db.run("INSERT INTO Measurements VALUES (?, ?, ?, ?, ?, ?, ?)", [time, tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5] ], function(err, succ) {
-            if(err) {
+        db.run("INSERT INTO Measurements VALUES (?, ?, ?, ?, ?, ?, ?)", [time, tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5]], function(err, succ) {
+            if (err) {
                 console.log("Greska pri upisivanju");
             }
-            
+
         });
     }
 
-    var res = { "message" : data};
+    var res = { "message": data };
     arduino.emit("arduinoResponse", res);
 });
 
 var interval;
 
-var arduino = io.of("/arduinoUno").on("connection",function (socket) 
-{ 
+var arduino = io.of("/arduinoUno").on("connection", function(socket) {
     console.log("User connected");
     socket.emit("serverConnect", {});
 
-    socket.on("temperature", function (data) { 
+    socket.on("temperature", function(data) {
         USBtoArduino.write("T");
-     });
+    });
 
-     socket.on("temperatureOutdoors", function (data) { 
+    socket.on("temperatureOutdoors", function(data) {
         USBtoArduino.write("t");
-     });
+    });
 
-    socket.on("humidity", function (data) { 
+    socket.on("humidity", function(data) {
         USBtoArduino.write("V");
-     });
+    });
 
-     socket.on("humidityOutdoors", function (data) { 
+    socket.on("humidityOutdoors", function(data) {
         USBtoArduino.write("v");
-     });
+    });
 
-    socket.on("lighting1", function (data) { 
+    socket.on("lighting1", function(data) {
         USBtoArduino.write("S");
-     });
+    });
 
-    socket.on("lighting2", function (data) { 
+    socket.on("lighting2", function(data) {
         USBtoArduino.write("s");
-     });
+    });
 
-    socket.on("refresh", function (data) {
+    socket.on("refresh", function(data) {
         clearInterval(interval);
-        interval = setInterval(function()
-		{
+        interval = setInterval(function() {
             USBtoArduino.write("A");
         }, data);
     });
 
- });
+});
 
 
 
 
-app.get('/day', function (req, res) 
-{ 
+app.get('/day', function(req, res) {
     var response = [];
-    var now = Date.now(); 
+    var now = Date.now();
 
     connectDb();
 
     db.all("SELECT * FROM Measurements WHERE ((? - Time) / (1000 * 60 * 60)) <= 24", [now], function(err, rows) {
-        if(!err) {
+        if (!err) {
             console.log(rows);
             res.send(rows);
         }
     });
-  
- });
 
-app.get('/month', function (req, res) 
-{ 
+});
+
+app.get('/week', function(req, res) {
     var response = [];
-    var now = Date.now(); 
+    var now = Date.now();
+
+    connectDb();
+
+    db.all("SELECT * FROM Measurements WHERE ((? - Time) /  (1000 * 60 * 60 * 24)) <= 7", [now], function(err, rows) {
+        if (!err) {
+            console.log(rows);
+            res.send(rows);
+        }
+    });
+
+});
+
+app.get('/month', function(req, res) {
+    var response = [];
+    var now = Date.now();
 
     connectDb();
 
     db.all("SELECT * FROM Measurements WHERE ((? - Time) / (1000 * 60 * 60 * 24)) <= 30", [now], function(err, rows) {
-        if(!err) {
+        if (!err) {
             console.log(rows);
             res.send(rows);
         }
     });
- });
+});
 
 
- server.listen(3001, function () { 
+server.listen(3001, function() {
     console.log("web server port : 3001 ");
- })
+})
