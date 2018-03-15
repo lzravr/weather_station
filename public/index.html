@@ -25,7 +25,7 @@
         <![endif]-->
 </head>
 
-<body>
+<body onload="ucitajGrafik();">
 
     <div class="jumbotron">
         <div class="container">
@@ -165,7 +165,8 @@
                     <label for="inputIzborSenzora" class="col-sm-5 control-label">Sensor selection:</label>
                     <div class="col-sm-6">
                         <select name="" id="inputIzborSenzora" class="form-control" required="required">
-                                <option value="Temp_inside" selected >Indoors temperature</option>
+                                <option value="All" selected >All</option>
+                                <option value="Temp_inside">Indoors temperature</option>
                                 <option value="Temp_outside">Outdoors temperature</option>
                                 <option value="Humidity_inside">Indoors humidity</option>
                                 <option value="Humidity_outside">Outdoors humidity</option>
@@ -181,7 +182,7 @@
                     <div class="col-sm-6">
                         <select name="" id="inputVremesnkiOpseg" class="form-control" required="required">
                                 <option value="day">Last 24 hours</option>
-                                <option value="week">Last 7 days</option>
+                                <option value="week" selected>Last 7 days</option>
                                 <option value="month">Last 30 days</option>
                                 
                             </select>
@@ -208,7 +209,7 @@
             </div>
         </div>
 
-        <div class="row" id='dateRangeSelector' style="display:none">
+        <!-- <div class="row" id='dateRangeSelector' style="display:none">
             <div class="col-sm-4">
             </div>
             <div class="input-daterange input-group" id="datepicker">
@@ -216,18 +217,40 @@
                 <span class="input-group-addon">to</span>
                 <input type="text" class="input-sm form-control" name="end" />
             </div>
+            
+        </div> -->
+
+        <div class="row" id='dateRangeSelector' style="display:none;">
+            <div class="col-sm-4">
+                <div class="input-daterange input-group col-md-12" id="datepicker" style="padding-top: 15px;">
+                    <div class="row" style="padding: 10px;">
+                        <div class="col-md-5">
+                            <label for="d1" class="col-sm-12 control-label">Date From: </label>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" id="d1" class="input-sm form-control" name="start" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 10px;">
+                        <div class="col-md-5">
+                            <label for="d2" class="col-sm-12 control-label">Date To: </label>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" id="d2" class="col-md-8 input-sm form-control" name="end" />
+                        </div>
+                    </div>                   
+                    
+                </div>
+            </div>
+            <div class="col-sm-8" id="table-body">
+    
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-sm-4">
-        </div>
-        <div class="col-sm-8" id="table-body">
+    
 
-        </div>
-    </div>
 
-    </div>
 
     <script>
         var socket = io.connect(location.host + "/arduinoUno");
@@ -304,36 +327,40 @@
 
 
         function getTable() {
+            document.getElementById("table-body").innerHTML = "";
+            //document.getElementById("datepicker").innerHTML = "";
             var path = $("#inputVremesnkiOpseg").val();
             $.get(path, function(data) {
-                var string = "<table id='table' class='table table-hover' \
-                                data-id-field='Time'\
-                                data-pagination='true' \
-                                data-page-list='[20, 30, 50, 100, ALL]' \
-                                data-page-size='20'> \
-                                <thead> \
-                                    <tr> \
-                                    <th data-field='Time' data-formatter='timeFormatter'>Time</th> \
-                                    <th data-field='Temp_inside'>Indoors temperature</th> \
-                                    <th data-field='Temp_outside'>Outdoors temperature</th> \
-                                    <th data-field='Humidity_inside'>Indoors humidity</th> \
-                                    <th data-field='Humidity_outside'>Outdoors humidity</th> \
-                                    <th data-field='Lighting1'>Indoors lighting</th> \
-                                    <th data-field='Lighting2'>Outdoors lighting</th> \
-                                    </tr> \
-                                </thead> \
-                            <tbody> \
-                            </tbody> \
-                            </table>";
+                if(data.length != 0) {
+                    var string = "<table id='table' class='table table-hover' \
+                                    data-id-field='Time'\
+                                    data-pagination='true' \
+                                    data-page-list='[20, 30, 50, 100, ALL]' \
+                                    data-page-size='20'> \
+                                    <thead> \
+                                        <tr> \
+                                        <th data-field='Time' data-formatter='timeFormatter'>Time</th> \
+                                        <th data-field='Temp_inside'>Indoors temperature</th> \
+                                        <th data-field='Temp_outside'>Outdoors temperature</th> \
+                                        <th data-field='Humidity_inside'>Indoors humidity</th> \
+                                        <th data-field='Humidity_outside'>Outdoors humidity</th> \
+                                        <th data-field='Lighting1'>Indoors lighting</th> \
+                                        <th data-field='Lighting2'>Outdoors lighting</th> \
+                                        </tr> \
+                                    </thead> \
+                                <tbody> \
+                                </tbody> \
+                                </table>";
 
-                console.log("papa " + data);
+                    console.log("papa " + data);
 
-                document.getElementById("table-body").innerHTML = string;
-                $('#table').bootstrapTable({
-                    data: data
-                });
-                $('.fixed-table-loading').css("display", "none");
-                $('#dateRangeSelector').css("display", "block");
+                    document.getElementById("table-body").innerHTML = string;
+                    $('#table').bootstrapTable({
+                        data: data
+                    });
+                    $('.fixed-table-loading').css("display", "none");
+                    $('#dateRangeSelector').css("display", "block");
+                }
             });
         }
 
@@ -354,66 +381,114 @@
         function ucitajGrafik() {
             var senzor = $("#inputIzborSenzora").val();
             var path = $("#inputVremesnkiOpseg").val();
-            console.log(path);
+            var nazivYosa = "";
+            console.log("Senzor: " + senzor);
 
-            $.get(path, function(data) {
-                console.log(data);
-                var nazivYosa = "";
-                switch (senzor) {
-                    case "Temp_inside":
-                        nazivYosa = "Temerature (°C)";
-                        break;
-                    case "Temp_outside":
-                        nazivYosa = "Temerature (°C)";
-                        break;
-                    case 'Humidity_inside':
-                        nazivYosa = "Humidity (% RH)";
-                        break;
-                    case 'Humidity_outside':
-                        nazivYosa = "Humidity (% RH)";
-                        break;
-                    case 'Lighting1':
-                        nazivYosa = "Lighting (lux)";
-                        break;
-                    case 'Lighting2':
-                        nazivYosa = "Lighting (lux)";
-                        break;
-                }
+            if(senzor == "All") {
+                nazivYosa = "All";
+                $.get(path, function(data) {
+                    console.log(data);
+
+                    var all = [];
+                   
+                    var sens = ["Temp_inside", "Temp_outside", "Humidity_inside", "Humidity_outside", "Lighting1", "Lighting2"];
+                    
+                    sens.forEach(item => {
+                        var xAxis = [];
+                        var yAxis = [];
+                        for (var i = 0; i < data.length; i++) {
+
+                            var vreme = new Date(data[i]["Time"]);
+                            xAxis.push(vreme);
+                            yAxis.push(data[i][item]);
+                        }
+
+                        var line = {
+                                x: xAxis,
+                                y: yAxis,
+                                name: item,
+                                mode: 'lines+markers',
+                                type: 'scatter'
+                            };
+
+                            all.push(line);
+                    });
+        
+                    console.log(all);
+
+                    var layout = {
+                        title: "All values" + ' / Time',
+                        xaxis: {
+                            title: "Time"
+                        },
+                        yaxis: {
+                            title: nazivYosa
+                        },                       
+                    };
+
+                    Plotly.newPlot('grafik', all, layout);
+
+                })
+            }
+            else {
+
+                $.get(path, function(data) {
+                    console.log(data);
+                    switch (senzor) {
+                        case "Temp_inside":
+                            nazivYosa = "Temerature (°C)";
+                            break;
+                        case "Temp_outside":
+                            nazivYosa = "Temerature (°C)";
+                            break;
+                        case 'Humidity_inside':
+                            nazivYosa = "Humidity (% RH)";
+                            break;
+                        case 'Humidity_outside':
+                            nazivYosa = "Humidity (% RH)";
+                            break;
+                        case 'Lighting1':
+                            nazivYosa = "Lighting (lux)";
+                            break;
+                        case 'Lighting2':
+                            nazivYosa = "Lighting (lux)";
+                            break;
+                    }
 
 
-                var n = data.length;
-                var xAxis = [];
-                var yAxis = [];
-                for (var i = 0; i < n; i++) {
-                    var vreme = new Date(data[i]["Time"]);
-                    xAxis.push(vreme);
-                    yAxis.push(data[i][senzor]);
-                }
-                console.log(yAxis);
+                    var n = data.length;
+                    var xAxis = [];
+                    var yAxis = [];
+                    for (var i = 0; i < n; i++) {
+                        var vreme = new Date(data[i]["Time"]);
+                        xAxis.push(vreme);
+                        yAxis.push(data[i][senzor]);
+                    }
+                    console.log(yAxis);
 
-                var line = {
-                    x: xAxis,
-                    y: yAxis,
-                    mode: 'lines+markers',
-                    type: 'scatter'
-                };
+                    var line = {
+                        x: xAxis,
+                        y: yAxis,
+                        mode: 'lines+markers',
+                        type: 'scatter'
+                    };
 
-                var data = [line];
+                    var data = [line];
 
-                var layout = {
-                    xaxis: {
-                        title: "Time"
-                    },
-                    yaxis: {
-                        title: nazivYosa
-                    },
+                    var layout = {
+                        title: nazivYosa + "/ Time",
+                        xaxis: {
+                            title: "Time"
+                        },
+                        yaxis: {
+                            title: nazivYosa
+                        }
+                    };
 
-                    title: nazivYosa + ' / Time'
-                };
+                    Plotly.newPlot('grafik', data, layout);
 
-                Plotly.newPlot('grafik', data, layout);
-
-            })
+                })
+            }
         }
     </script>
 
