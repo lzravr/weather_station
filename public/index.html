@@ -13,6 +13,11 @@
     <link href="./style.css" rel="stylesheet">
     <!--<script src="https://cdn.socket.io/socket.io-1.3.6.js"></script>-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.js"></script>
+    <script>
+        src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/core.js"
+    </script>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/css/bootstrap-datetimepicker.css" rel="stylesheet" />
     <!-- <script src="socket.io-1.3.6.js"></script> -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
@@ -238,21 +243,27 @@
                         <div class="col-md-6">
                             <input type="text" id="d2" class="col-md-8 input-sm form-control" name="end" />
                         </div>
-                    </div>                   
-                    
+                    </div>
+                    <div class="row" style="padding: 10px;">
+                        <div class="col-md-5">
+                        </div>
+                        <div class="col-md-6">
+                            <button class="col-sm-12 btn btn-primary" onclick="getDataInRange();">Filter</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-sm-8" id="table-body">
-    
+
             </div>
         </div>
     </div>
 
-    
 
 
 
-    <script>
+
+    <script defer>
         var socket = io.connect(location.host + "/arduinoUno");
 
         socket.on("arduinoResponse", function(data) {
@@ -326,12 +337,22 @@
 
 
 
-        function getTable() {
-            document.getElementById("table-body").innerHTML = "";
-            //document.getElementById("datepicker").innerHTML = "";
-            var path = $("#inputVremesnkiOpseg").val();
+
+        function getDataInRange() {
+            console.log($("#d1").val());
+            console.log($('#d2').val());
+            var from = new Date($("#d1").val()).getTime();
+            var to = new Date($("#d2").val()).getTime();
+            console.log(from);
+            console.log(to);
+
+            var path = "/range/" + from + "/" + to;
+            createTable(path);
+        }
+
+        function createTable(path) {
             $.get(path, function(data) {
-                if(data.length != 0) {
+                if (data.length != 0 || data.length == 0) {
                     var string = "<table id='table' class='table table-hover' \
                                     data-id-field='Time'\
                                     data-pagination='true' \
@@ -364,6 +385,19 @@
             });
         }
 
+        function getTable() {
+            document.getElementById("table-body").innerHTML = "";
+            //document.getElementById("datepicker").innerHTML = "";
+            var path = $("#inputVremesnkiOpseg").val();
+            createTable(path);
+            $('#d1').datetimepicker({
+                format: "MM/DD/YYYY HH:mm:ss"
+            });
+            $('#d2').datetimepicker({
+                format: "MM/DD/YYYY HH:mm:ss"
+            });
+        }
+
         function timeFormatter(value) {
             var vreme = new Date(value).toLocaleString();
             return vreme;
@@ -384,15 +418,15 @@
             var nazivYosa = "";
             console.log("Senzor: " + senzor);
 
-            if(senzor == "All") {
+            if (senzor == "All") {
                 nazivYosa = "All";
                 $.get(path, function(data) {
                     console.log(data);
 
                     var all = [];
-                   
+
                     var sens = ["Temp_inside", "Temp_outside", "Humidity_inside", "Humidity_outside", "Lighting1", "Lighting2"];
-                    
+
                     sens.forEach(item => {
                         var xAxis = [];
                         var yAxis = [];
@@ -404,16 +438,16 @@
                         }
 
                         var line = {
-                                x: xAxis,
-                                y: yAxis,
-                                name: item,
-                                mode: 'lines+markers',
-                                type: 'scatter'
-                            };
+                            x: xAxis,
+                            y: yAxis,
+                            name: item,
+                            mode: 'lines+markers',
+                            type: 'scatter'
+                        };
 
-                            all.push(line);
+                        all.push(line);
                     });
-        
+
                     console.log(all);
 
                     var layout = {
@@ -423,14 +457,13 @@
                         },
                         yaxis: {
                             title: nazivYosa
-                        },                       
+                        },
                     };
 
                     Plotly.newPlot('grafik', all, layout);
 
                 })
-            }
-            else {
+            } else {
 
                 $.get(path, function(data) {
                     console.log(data);
@@ -499,8 +532,8 @@
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
 
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 </body>
 
 </html>

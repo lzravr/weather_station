@@ -18,7 +18,6 @@ connectDb = function() {
 
 app.use(express.static(__dirname + "/public"));
 
-
 const SerialPort = require('serialport');
 const Readline = SerialPort.parsers.Readline;
 
@@ -115,6 +114,28 @@ app.get('/day', function(req, res) {
     });
 
 });
+
+app.get('/range/:start/:end', function(req, res) {
+    console.log(req.params);
+
+    connectDb();
+
+    var queryString = "SELECT * FROM Measurements WHERE 1=1";
+    if (req.params.start != 'NaN') {
+        queryString += " AND Time >= " + req.params.start;
+    }
+    if (req.params.end != 'NaN') {
+        queryString += " AND Time <= " + req.params.end;
+    }
+
+    console.log(queryString);
+
+    db.all(queryString, function(err, rows) {
+        if (!err) {
+            res.send(rows);
+        }
+    })
+})
 
 app.get('/week', function(req, res) {
     var response = [];

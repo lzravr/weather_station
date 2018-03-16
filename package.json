@@ -12,6 +12,7 @@
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
     "fs": "0.0.1-security",
+    "moment": "^2.21.0",
     "serialport": "^6.1.1",
     "socket.io": "^2.0.4",
     "sqlite3": "^3.1.13"
