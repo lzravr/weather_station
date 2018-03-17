@@ -8,6 +8,5 @@
 ### Connecting
 How to connect DHT22 sensor and a photocell:
 
-![Image of Yaktocat](/public/weather_station_bb.png);
- 
-@azzaro96
+![Image of Yaktocat](/public/weather_station_bb.png)
+
