@@ -1,6 +1,6 @@
 # Arduino Weather Station
 
-### Ssensors
+### Sensors
 Two DHT22 and two Photocells
 
 ### Connecting
