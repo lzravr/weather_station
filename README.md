@@ -1,8 +1,8 @@
 # Arduino Weather Station
 
 ### Sensors
-1. 2 x DHT22
-2. 2 x Photocell
+1. DHT22 x 2
+2. Photocell x 2
 
 ### Connecting
 How to connect DHT22 sensor and a photocell:
