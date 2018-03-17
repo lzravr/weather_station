@@ -38,7 +38,6 @@ USBtoArduino.on("error", function(error) {
 });
 
 parser.on("data", function(data) {
-    console.log("data from arduino : " + data);
     if (data[0] == "A") {
         connectDb();
 
@@ -108,7 +107,6 @@ app.get('/day', function(req, res) {
 
     db.all("SELECT * FROM Measurements WHERE ((? - Time) / (1000 * 60 * 60)) <= 24", [now], function(err, rows) {
         if (!err) {
-            console.log(rows);
             res.send(rows);
         }
     });
@@ -116,7 +114,6 @@ app.get('/day', function(req, res) {
 });
 
 app.get('/range/:start/:end', function(req, res) {
-    console.log(req.params);
 
     connectDb();
 
@@ -128,7 +125,6 @@ app.get('/range/:start/:end', function(req, res) {
         queryString += " AND Time <= " + req.params.end;
     }
 
-    console.log(queryString);
 
     db.all(queryString, function(err, rows) {
         if (!err) {
@@ -145,7 +141,6 @@ app.get('/week', function(req, res) {
 
     db.all("SELECT * FROM Measurements WHERE ((? - Time) /  (1000 * 60 * 60 * 24)) <= 7", [now], function(err, rows) {
         if (!err) {
-            console.log(rows);
             res.send(rows);
         }
     });
@@ -160,7 +155,6 @@ app.get('/month', function(req, res) {
 
     db.all("SELECT * FROM Measurements WHERE ((? - Time) / (1000 * 60 * 60 * 24)) <= 30", [now], function(err, rows) {
         if (!err) {
-            console.log(rows);
             res.send(rows);
         }
     });
